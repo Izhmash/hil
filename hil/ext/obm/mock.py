@@ -58,7 +58,7 @@ class MockObm(Obm):
     def require_legal_bootdev(self, dev):
         return
 
-    def set_bootdev(self, dev):
+    def set_bootdev(self, dev, efi):
         return
 
     @no_dry_run

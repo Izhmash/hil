@@ -272,9 +272,11 @@ def node_power_off(node):
 
 
 @rest_call('PUT', '/node/<node>/boot_device', Schema({
-    'node': basestring, 'bootdev': basestring,
+    'node': basestring,
+    'bootdev': basestring,
+    Optional('efi'): bool,
 }))
-def node_set_bootdev(node, bootdev):
+def node_set_bootdev(node, bootdev, efi=False):
     auth_backend = get_auth_backend()
     node = _must_find(model.Node, node)
     if node.project is None:
@@ -284,7 +286,7 @@ def node_set_bootdev(node, bootdev):
 
     node.obm.require_legal_bootdev(bootdev)
 
-    node.obm.set_bootdev(bootdev)
+    node.obm.set_bootdev(bootdev, efi)
 
 
 @rest_call('DELETE', '/node/<node>', Schema({'node': basestring}))

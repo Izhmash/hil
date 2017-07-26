@@ -336,7 +336,7 @@ class Obm(db.Model):
         assert False, "Subclasses MUST override the require_legal_bootdev" \
             "method"
 
-    def set_bootdev(self, dev):
+    def set_bootdev(self, dev, efi=False):
         """sets bootdevice to dev.
 
         Exact implementation is left to the subclasses.
