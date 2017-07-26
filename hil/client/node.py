@@ -51,6 +51,14 @@ class Node(ClientBase):
         url = self.object_url('node', node_name, 'power_off')
         return self.check_response(self.httpClient.request('POST', url))
 
+    def set_bootdev(self, node_name, bootdev, efi=False):
+        """Set <node>'s boot device along with optional <efi> argument."""
+        url = self.object_url('node', node_name, 'boot_device')
+        payload = json.dumps({'bootdev': bootdev, 'efi': efi})
+        return self.check_response(
+                self.httpClient.request('PUT', url, data=payload)
+                )
+
     def add_nic(self, node_name, nic_name, macaddr):
         """Add a <nic> to <node>"""
         url = self.object_url('node', node_name, 'nic', nic_name)

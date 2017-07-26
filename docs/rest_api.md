@@ -490,13 +490,17 @@ Request body:
 
 `PUT /node/<node>/boot_device`
 
-Sets the node's next boot device persistently
+Sets the node's next boot device persistently.
+
+Accepts one optional boolean argument that determines whether to use 
+legacy or UEFI booting.
 
 The request body consists of JSON with a `bootdev` argument:
 
 Request body:
     {
     	"bootdev": <boot device>
+        "efi": <boolean> (Optional, defaults to False)
     }
 
 ##### For IPMI devices
