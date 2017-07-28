@@ -276,7 +276,10 @@ def node_power_off(node):
     'bootdev': basestring,
     Optional('efi'): bool,
 }))
-def node_set_bootdev(node, bootdev, efi=False):
+def node_set_bootdev(node, bootdev, efi=None):
+    # Temporary -- shows how the defaulting might work
+    if efi is None:
+        efi = False
     auth_backend = get_auth_backend()
     node = _must_find(model.Node, node)
     if node.project is None:
