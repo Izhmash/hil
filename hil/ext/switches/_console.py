@@ -36,6 +36,13 @@ class Session(object):
         """Navigate back to the main prompt from an interface prompt."""
 
     @abstractmethod
+    def _port_on(self):
+        """Power on the current interface."""
+
+    def _port_off(self):
+        """Power off the current interface."""
+
+    @abstractmethod
     def enable_vlan(self, vlan_id):
         """Enable ``vlan_id`` for the current interface.
 
@@ -102,8 +109,10 @@ class Session(object):
                 "switch!"
             vlan_id = match.groups()[0]
             if network_id is None:
+                self._port_off()
                 self.disable_vlan(vlan_id)
             else:
+                self._port_on()
                 assert network_id == vlan_id
                 self.enable_vlan(vlan_id)
 
@@ -114,6 +123,7 @@ class Session(object):
         self.enter_if_prompt(port)
         self.console.expect(self.if_prompt)
 
+        self._port_off()
         self.disable_port()
 
         self.exit_if_prompt()

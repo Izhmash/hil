@@ -190,6 +190,27 @@ class Brocade(Switch):
         except AttributeError:
             return []
 
+    def _port_off(self, interface):
+        """ Power off the selected interface.
+
+        Args:
+            interface: interface to power off
+        """
+        url = self._construct_url(interface)
+        payload = '<shutdown>true</shutdown>'
+        self._make_request('PUT', url, data=payload)
+
+
+    def _port_on(self, interface):
+        """ Power on the selected interface.
+
+        Args:
+            interface: interface to power on
+        """
+        url = self._construct_url(interface)
+        payload = '<shutdown>false</shutdown>'
+        self._make_request('PUT', url, data=payload)
+
     def _get_native_vlan(self, interface):
         """ Return the native vlan of an interface.
 
