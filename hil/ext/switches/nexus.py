@@ -98,6 +98,12 @@ class _Session(_console.Session):
         self.console.sendline('exit')
         self.console.sendline('exit')
 
+    def _port_on(self):
+        self.console.sendline('no shutdown')
+
+    def _port_off(self):
+        self.console.sendline('shutdown')
+
     def enable_vlan(self, vlan_id):
         self.console.sendline('sw')
         self.console.sendline('sw mode trunk')
