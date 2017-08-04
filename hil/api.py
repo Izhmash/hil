@@ -407,6 +407,11 @@ def node_connect_network(node, nic, network, channel=None):
     if not allocator.is_legal_channel_for(channel, network.network_id):
         raise BadArgumentError("Channel %r, is not legal for this network." %
                                channel)
+    if channel != 'vlan/native' \
+            and db.session.query(model.NetworkAttachment) \
+            .filter(model.NetworkAttachment.channel == 'vlan/native') \
+            .count() < 1:
+        raise BlockedError("Please attach a native VLAN first.")
 
     db.session.add(model.NetworkingAction(type='modify_port',
                                           nic=nic,
@@ -445,6 +450,12 @@ def node_detach_network(node, nic, network):
         .filter_by(nic=nic, network=network).first()
     if attachment is None:
         raise BadArgumentError("The network is not attached to the nic.")
+    if db.session.query(model.NetworkAttachment) \
+            .filter(model.NetworkAttachment.channel != 'vlan/native') \
+            .count() > 0:
+        raise BlockedError(
+                "Please remove all trunked VLANs "
+                "before removing the native VLAN.")
     db.session.add(model.NetworkingAction(type='modify_port',
                                           nic=nic,
                                           channel=attachment.channel,
@@ -1279,6 +1290,23 @@ def stop_console(nodename):
 
 # Helper functions #
 ####################
+def _get_count(cls):
+    """Returns the number of instances of a given object type.
+
+    Arguments:
+
+    cls - the class name of the object to query.
+    """
+    return db.session.query(cls).count()
+
+
+def _get_count_row(cls, col):
+    """Helper function to count column instances in a function."""
+    return db.session.query(cls) \
+        .filter(col != 'vlan/native') \
+        .count()
+
+
 def _assert_absent(cls, name):
     """Raises a DuplicateError if the given object is already in the database.
 
