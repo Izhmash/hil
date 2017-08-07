@@ -454,7 +454,6 @@ def node_detach_network(node, nic, network):
     if attachment is None:
         raise BadArgumentError("The network is not attached to the nic.")
     # Check if any other VLANs are attached before removing the native VLAN
-    # FIXME: This returns true even if the network being removed isn't native
     if attachment.channel == 'vlan/native' \
         and db.session.query(model.NetworkAttachment) \
             .filter(model.NetworkAttachment.channel != 'vlan/native') \

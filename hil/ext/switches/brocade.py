@@ -84,9 +84,11 @@ class Brocade(Switch):
 
         if channel == 'vlan/native':
             if network_id is None:
+                self._port_off(interface)
                 self._remove_native_vlan(interface)
             else:
                 self._set_native_vlan(interface, network_id)
+                self._port_on(interface)
         else:
             match = re.match(re.compile(r'vlan/(\d+)'), channel)
             assert match is not None, "HIL passed an invalid channel to the" \
@@ -102,6 +104,7 @@ class Brocade(Switch):
     def revert_port(self, port):
         self._remove_all_vlans_from_trunk(port)
         if self._get_native_vlan(port) is not None:
+            self._port_off(port.label)
             self._remove_native_vlan(port)
 
     def get_port_networks(self, ports):
@@ -197,9 +200,8 @@ class Brocade(Switch):
             interface: interface to power off
         """
         url = self._construct_url(interface)
-        payload = '<shutdown>true</shutdown>'
-        self._make_request('PUT', url, data=payload)
-
+        payload = '<shutdown></shutdown>'
+        self._make_request('POST', url, data=payload)
 
     def _port_on(self, interface):
         """ Power on the selected interface.
@@ -207,9 +209,8 @@ class Brocade(Switch):
         Args:
             interface: interface to power on
         """
-        url = self._construct_url(interface)
-        payload = '<shutdown>false</shutdown>'
-        self._make_request('PUT', url, data=payload)
+        url = self._construct_url_bare(interface, suffix='shutdown')
+        self._make_request('DELETE', url)
 
     def _get_native_vlan(self, interface):
         """ Return the native vlan of an interface.
@@ -300,7 +301,7 @@ class Brocade(Switch):
 
         Args:
             interface: interface to construct the url for
-            suffix: suffix to append at the end of the url
+            suffix: suffix after /switchport/ to append at the end of the url
 
         Returns: string with the url for a specific interface and operation
         """
@@ -315,6 +316,28 @@ class Brocade(Switch):
                   'interface_type': self.interface_type,
                   'interface': interface,
                   'suffix': '/switchport/%s' % suffix if suffix else ''
+            }
+
+    def _construct_url_bare(self, interface, suffix=''):
+        """ Construct the API url for a specific interface appending suffix.
+
+        Args:
+            interface: interface to construct the url for
+            suffix: suffix to append at the end of the url
+
+        Returns: string with the url for a specific interface and operation
+        """
+        # %22 is the encoding for double quotes (") in urls.
+        # % escapes the % character.
+        # Double quotes are necessary in the url because switch ports contain
+        # forward slashes (/), ex. 101/0/10 is encoded as "101/0/10".
+        return '%(hostname)s/rest/config/running/interface/' \
+            '%(interface_type)s/%%22%(interface)s%%22%(suffix)s' \
+            % {
+                  'hostname': self.hostname,
+                  'interface_type': self.interface_type,
+                  'interface': interface,
+                  'suffix': '/%s' % suffix if suffix else ''
             }
 
     @property
