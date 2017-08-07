@@ -407,6 +407,9 @@ def node_connect_network(node, nic, network, channel=None):
     if not allocator.is_legal_channel_for(channel, network.network_id):
         raise BadArgumentError("Channel %r, is not legal for this network." %
                                channel)
+
+    # Could there be a case where this fails due to a race contition
+    # with the networking action queue?
     if channel != 'vlan/native' \
             and db.session.query(model.NetworkAttachment) \
             .filter(model.NetworkAttachment.channel == 'vlan/native') \
@@ -450,8 +453,12 @@ def node_detach_network(node, nic, network):
         .filter_by(nic=nic, network=network).first()
     if attachment is None:
         raise BadArgumentError("The network is not attached to the nic.")
-    if db.session.query(model.NetworkAttachment) \
+    # Check if any other VLANs are attached before removing the native VLAN
+    # FIXME: This returns true even if the network being removed isn't native
+    if attachment.channel == 'vlan/native' \
+        and db.session.query(model.NetworkAttachment) \
             .filter(model.NetworkAttachment.channel != 'vlan/native') \
+            .filter(model.NetworkAttachment.nic_id == nic.id) \
             .count() > 0:
         raise BlockedError(
                 "Please remove all trunked VLANs "

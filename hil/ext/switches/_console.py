@@ -87,7 +87,6 @@ class Session(object):
 
         self.enter_if_prompt(interface)
         self.console.expect(self.if_prompt)
-
         if channel == 'vlan/native':
             old_native = NetworkAttachment.query.filter_by(
                 channel='vlan/native',
