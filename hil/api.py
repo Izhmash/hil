@@ -413,6 +413,7 @@ def node_connect_network(node, nic, network, channel=None):
     if channel != 'vlan/native' \
             and db.session.query(model.NetworkAttachment) \
             .filter(model.NetworkAttachment.channel == 'vlan/native') \
+            .filter(model.NetworkAttachment.nic_id == nic.id) \
             .count() < 1:
         raise BlockedError("Please attach a native VLAN first.")
 
@@ -1296,23 +1297,6 @@ def stop_console(nodename):
 
 # Helper functions #
 ####################
-def _get_count(cls):
-    """Returns the number of instances of a given object type.
-
-    Arguments:
-
-    cls - the class name of the object to query.
-    """
-    return db.session.query(cls).count()
-
-
-def _get_count_row(cls, col):
-    """Helper function to count column instances in a function."""
-    return db.session.query(cls) \
-        .filter(col != 'vlan/native') \
-        .count()
-
-
 def _assert_absent(cls, name):
     """Raises a DuplicateError if the given object is already in the database.
 

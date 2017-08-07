@@ -36,11 +36,12 @@ class Session(object):
         """Navigate back to the main prompt from an interface prompt."""
 
     @abstractmethod
-    def _port_on(self):
-        """Power on the current interface."""
-
     def _port_off(self):
         """Power off the current interface."""
+
+    @abstractmethod
+    def _port_on(self):
+        """Power on the current interface."""
 
     @abstractmethod
     def enable_vlan(self, vlan_id):
@@ -87,6 +88,7 @@ class Session(object):
 
         self.enter_if_prompt(interface)
         self.console.expect(self.if_prompt)
+
         if channel == 'vlan/native':
             old_native = NetworkAttachment.query.filter_by(
                 channel='vlan/native',
@@ -95,9 +97,11 @@ class Session(object):
                 old_native = old_native.network.network_id
 
             if network_id is not None:
+                self._port_on()
                 self.set_native(old_native, network_id)
             elif old_native is not None:
                 self.disable_native(old_native)
+                self._port_off()
         else:
             match = re.match(_CHANNEL_RE, channel)
             # TODO: I'd be more okay with this assertion if it weren't possible
@@ -108,10 +112,8 @@ class Session(object):
                 "switch!"
             vlan_id = match.groups()[0]
             if network_id is None:
-                self._port_off()
                 self.disable_vlan(vlan_id)
             else:
-                self._port_on()
                 assert network_id == vlan_id
                 self.enable_vlan(vlan_id)
 
@@ -122,8 +124,8 @@ class Session(object):
         self.enter_if_prompt(port)
         self.console.expect(self.if_prompt)
 
-        self._port_off()
         self.disable_port()
+        self._port_off()
 
         self.exit_if_prompt()
         self.console.expect(self.config_prompt)

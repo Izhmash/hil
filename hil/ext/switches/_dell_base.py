@@ -32,11 +32,11 @@ class _BaseSession(_console.Session):
         self._sendline('exit')
         self._sendline('exit')
 
-    def _port_on(self):
-        self._sendline('no shutoff')
-
     def _port_off(self):
         self._sendline('shutoff')
+
+    def _port_on(self):
+        self._sendline('no shutoff')
 
     def enable_vlan(self, vlan_id):
         self._sendline('sw mode trunk')
