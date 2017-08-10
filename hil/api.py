@@ -277,11 +277,11 @@ def node_power_off(node):
     Optional('efi'): bool,
 }))
 def node_set_bootdev(node, bootdev, efi=None):
-    # Temporary -- shows how the defaulting might work
-    if efi is None:
-        efi = False
     auth_backend = get_auth_backend()
     node = _must_find(model.Node, node)
+    # Temporary -- shows how the defaulting might work
+    if efi is None:
+        efi = '__uefi' in _must_find_n(node, model.Metadata, '__bios').value
     if node.project is None:
         auth_backend.require_admin()
     else:
