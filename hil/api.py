@@ -281,7 +281,9 @@ def node_set_bootdev(node, bootdev, efi=None):
     node = _must_find(model.Node, node)
     # Temporary -- shows how the defaulting might work
     if efi is None:
-        efi = '__uefi' in _must_find_n(node, model.Metadata, '__bios').value
+        efi = 'uefi' in _must_find_n(
+                node, model.Metadata, '__boot_firmware'
+                ).value
     if node.project is None:
         auth_backend.require_admin()
     else:

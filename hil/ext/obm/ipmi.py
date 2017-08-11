@@ -97,10 +97,13 @@ class Ipmi(Obm):
     def set_bootdev(self, dev, efi):
         self.require_legal_bootdev(dev)
         if efi:
-            boot_op = 'options=persistent,efiboot'
+            op = 'raw 0x00 0x08 0x05 0xe0 0x04 0x00 0x00 0x00'
+            dev = ''
+            boot_op = ''
         else:
             boot_op = 'options=persistent'
-        if self._ipmitool(['chassis', 'bootdev', dev,
+            op = 'bootdev'
+        if self._ipmitool(['chassis', op, dev,
                           boot_op]) != 0:
             raise OBMError('Could not set boot device')
 
