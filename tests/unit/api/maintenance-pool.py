@@ -32,7 +32,8 @@ def configure():
         'maintenance': {
             'maintenance_project': 'maintenance',
             #'url': 'http://localhost/foo/bar'
-            'url': 'http://posttestserver.com/post.php'
+            'url': 'http://127.0.0.1:35357/v3/'
+            #'url': 'http://posttestserver.com/post.php'
         }
     })
     config.load_extensions()
