@@ -95,3 +95,8 @@ class TestProjectDetachNodeMaintenance:
         assert node not in project.nodes
         assert node.project is not project
         assert node.project is maintenance_proj
+        # Cleanup
+        with pytest.raises(LoggedWarningError):
+            api.project_detach_node('maintenance', 'node-99')
+        assert node not in maintenance_proj.nodes
+        assert node.project is not maintenance_proj
