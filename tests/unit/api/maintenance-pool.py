@@ -31,7 +31,8 @@ def configure():
         },
         'maintenance': {
             'maintenance_project': 'maintenance',
-            'url': 'http://localhost/foo/bar'
+            #'url': 'http://localhost/foo/bar'
+            'url': 'http://posttestserver.com/post.php'
         }
     })
     config.load_extensions()
@@ -96,7 +97,6 @@ class TestProjectDetachNodeMaintenance:
         assert node.project is not project
         assert node.project is maintenance_proj
         # Cleanup
-        with pytest.raises(LoggedWarningError):
-            api.project_detach_node('maintenance', 'node-99')
+        api.project_detach_node('maintenance', 'node-99')
         assert node not in maintenance_proj.nodes
         assert node.project is not maintenance_proj
