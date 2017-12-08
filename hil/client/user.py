@@ -5,6 +5,7 @@ username & password auth.
 """
 import json
 from hil.client.base import ClientBase
+from hil.errors import BadArgumentError
 
 
 class User(ClientBase):
@@ -20,6 +21,11 @@ class User(ClientBase):
         and determines whether a user is authorized for
         administrative privileges.
         """
+
+        bad_chars = self.find_reserved(username)
+        if bool(bad_chars):
+            raise BadArgumentError("Usernames may not contain: %s"
+                                   % bad_chars)
         url = self.object_url('/auth/basic/user', username)
 
         if privilege not in('admin', 'regular'):
@@ -35,6 +41,10 @@ class User(ClientBase):
 
     def delete(self, username):
         """Deletes the user <username>. """
+        bad_chars = self.find_reserved(username)
+        if bool(bad_chars):
+            raise BadArgumentError("Usernames may not contain: %s"
+                                   % bad_chars)
         url = self.object_url('/auth/basic/user', username)
         return self.check_response(
                 self.httpClient.request("DELETE", url)
@@ -42,6 +52,10 @@ class User(ClientBase):
 
     def add(self, user, project):
         """Adds <user> to a <project>. """
+        bad_chars = self.find_reserved(user)
+        if bool(bad_chars):
+            raise BadArgumentError("Usernames may not contain: %s"
+                                   % bad_chars)
         url = self.object_url('/auth/basic/user', user, 'add_project')
         payload = json.dumps({'project': project})
         return self.check_response(
@@ -50,6 +64,10 @@ class User(ClientBase):
 
     def remove(self, user, project):
         """Removes all access of <user> to <project>. """
+        bad_chars = self.find_reserved(user)
+        if bool(bad_chars):
+            raise BadArgumentError("Usernames may not contain: %s"
+                                   % bad_chars)
         url = self.object_url('/auth/basic/user', user, 'remove_project')
         payload = json.dumps({'project': project})
         return self.check_response(
@@ -64,6 +82,10 @@ class User(ClientBase):
         administrative privileges.
         """
 
+        bad_chars = self.find_reserved(username)
+        if bool(bad_chars):
+            raise BadArgumentError("Usernames may not contain: %s"
+                                   % bad_chars)
         url = self.object_url('/auth/basic/user', username)
         payload = json.dumps({'is_admin': is_admin})
         return self.check_response(
