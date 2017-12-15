@@ -56,6 +56,10 @@ class User(ClientBase):
         if bool(bad_chars):
             raise BadArgumentError("Usernames may not contain: %s"
                                    % bad_chars)
+        bad_chars = self.find_reserved(project)
+        if bool(bad_chars):
+            raise BadArgumentError("Projects may not contain: %s"
+                                   % bad_chars)
         url = self.object_url('/auth/basic/user', user, 'add_project')
         payload = json.dumps({'project': project})
         return self.check_response(
@@ -67,6 +71,10 @@ class User(ClientBase):
         bad_chars = self.find_reserved(user)
         if bool(bad_chars):
             raise BadArgumentError("Usernames may not contain: %s"
+                                   % bad_chars)
+        bad_chars = self.find_reserved(project)
+        if bool(bad_chars):
+            raise BadArgumentError("Projects may not contain: %s"
                                    % bad_chars)
         url = self.object_url('/auth/basic/user', user, 'remove_project')
         payload = json.dumps({'project': project})
