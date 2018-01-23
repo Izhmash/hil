@@ -1,5 +1,6 @@
 """Client support for node related api calls."""
 import json
+from hil.client.base import check_reserved_chars
 from hil.client.base import ClientBase
 from hil.errors import BadArgumentError
 
@@ -15,12 +16,13 @@ class Node(ClientBase):
         url = self.object_url('nodes', is_free)
         return self.check_response(self.httpClient.request('GET', url))
 
+    @check_reserved_chars('node')
     def show(self, node_name):
         """Shows attributes of a given node """
-        bad_chars = self.find_reserved(node_name)
-        if bool(bad_chars):
-            raise BadArgumentError("Nodes may not contain: %s"
-                                   % bad_chars)
+        #bad_chars = self.find_reserved(node_name)
+        #if bool(bad_chars):
+        #    raise BadArgumentError("Nodes may not contain: %s"
+        #                           % bad_chars)
         url = self.object_url('node', node_name)
         return self.check_response(self.httpClient.request('GET', url))
 
@@ -98,6 +100,7 @@ class Node(ClientBase):
         url = self.object_url('node', node_name, 'nic', nic_name)
         return self.check_response(self.httpClient.request('DELETE', url))
 
+    @check_reserved_chars('node', 'nic', 'network', slashes_ok=['channel'])
     def connect_network(self, node, nic, network, channel):
         """Connect <node> to <network> on given <nic> and <channel>"""
         bad_chars = self.find_reserved(node)

@@ -3,6 +3,8 @@
 from urlparse import urljoin
 import json
 import re
+import functools
+from hil.errors import BadArgumentError
 
 
 class FailedAPICallException(Exception):
@@ -81,3 +83,49 @@ class ClientBase(object):
         excluding `/` for channels and ports"""
         p = r"[^A-Za-z0-9 /$_.+!*'(),-]+"
         return list(x for l in re.findall(p, string) for x in l)
+
+def check_reserved(*args, **kwargs):
+    """Returns a list of illegal characters in a string"""
+    slashes_ok = kwargs.pop('slashes_ok')
+    strings = kwargs.pop('strings')
+    types = kwargs.pop('types')
+    for string in strings:
+        if string in slashes_ok:
+            p = r"[^A-Za-z0-9 /$_.+!*'(),-]+"
+        else:
+            p = r"[^A-Za-z0-9 $_.+!*'(),-]+"
+        bad_chars = list(x for l in re.findall(p, string) for x in l)
+        #if bool(bad_chars):
+            #msg = types. + " may not contain " + bad_chars
+            #raise BadArgumentError(msg)
+
+def check_reserved_chars(*outer_args, **outer_kwargs):
+    """Wraps Client lib functions to check for illegal characters
+    and dynamically report the error by the offending argument(s)"""
+    #if f is None:
+    #    return functools.partial(check_reserved_chars, slashes_ok=slashes_ok)
+    #@functools.wraps(f)
+    def wrapper(f):
+        #check_reserved(*args, **kwargs)
+        #print(kwargs.pop('slashes_ok'))
+        #print("In wrapper " + str(list(args)))
+        #print("In wrapper " + str(list(kwargs)))
+        def reserved_wrap(*args, **kwargs):
+            #raise BadArgumentError(list(kwargs))
+            #print("In reserved_wrap " + str(list(args)))
+            #print("In reserved_wrap " + str(list(kwargs)))
+            #print("In reserved_wrap " + str(list(outer_args)))
+            #print("In reserved_wrap " + str(list(outer_kwargs)))
+            strings = list(filter(lambda elm: isinstance(elm, str), args))
+            #slashes_ok = outer_kwargs.pop('slashes_ok')
+            types_dict = dict()
+            print(strings)
+            print(list(outer_args))
+            for arg, out_arg in zip(strings, outer_args):
+                types_dict.update({out_arg:arg})
+            print(types_dict)
+            #check_reserved(strings=strings,
+            #               types=outer_args,
+            #               slashes_ok=slashes_ok)
+        return reserved_wrap
+    return wrapper
