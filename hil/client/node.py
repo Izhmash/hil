@@ -100,10 +100,11 @@ class Node(ClientBase):
         url = self.object_url('node', node_name, 'nic', nic_name)
         return self.check_response(self.httpClient.request('DELETE', url))
 
-    @check_reserved_chars('node', 'nic', 'network', slashes_ok=['channel'])
+    @check_reserved_chars('node', 'nic', 'network', 'channel',
+            slashes_ok=['channel'])
     def connect_network(self, node, nic, network, channel):
         """Connect <node> to <network> on given <nic> and <channel>"""
-        bad_chars = self.find_reserved(node)
+        """bad_chars = self.find_reserved(node)
         if bool(bad_chars):
             raise BadArgumentError("Nodes may not contain: %s"
                                    % bad_chars)
@@ -118,7 +119,7 @@ class Node(ClientBase):
         bad_chars = self.find_reserved_w_slash(channel)
         if bool(bad_chars):
             raise BadArgumentError("Channels may not contain: %s"
-                                   % bad_chars)
+                                   % bad_chars)"""
         url = self.object_url(
                 'node', node, 'nic', nic, 'connect_network'
                 )
