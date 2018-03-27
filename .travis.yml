@@ -1,3 +1,7 @@
+#before_install:
+    #- sudo add-apt-repository ppa:gophers/archive -y
+    #- sudo apt-get update -y
+    #- sudo apt-get install golang-1.9-go -y
 language: python
 python:
   - "2.7"
@@ -21,7 +25,6 @@ addons:
     packages:
       - apache2
       - libapache2-mod-wsgi
-      - golang
 
 branches:
   except:
@@ -34,6 +37,7 @@ env:
 install:
   # A dependency might use new pip syntax; upgrade to prevent breakage. See #771
   - pip install --upgrade pip
+  - sh -e ci/golang/install.sh
   - sh -e ci/apache/install.sh
   - sh -e ci/keystone/install.sh
 
